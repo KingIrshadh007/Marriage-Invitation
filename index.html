@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wedding Invitation | Irshadh Ahamed & Sara Farha</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cinzel:wght@400;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: {
+                            800: '#0b4d36',
+                            850: '#063726',
+                            900: '#062319',
+                            950: '#031710',
+                        },
+                        gold: {
+                            100: '#fff9d6',
+                            200: '#f5d77f',
+                            300: '#eec153',
+                            400: '#dfb76c',
+                            500: '#c59b27',
+                            600: '#9b7617',
+                            700: '#73540b',
+                        }
+                    },
+                    fontFamily: {
+                        arabic: ['Amiri', 'serif'],
+                        cinzel: ['Cinzel', 'serif'],
+                        cormorant: ['Cormorant Garamond', 'serif'],
+                        sans: ['Montserrat', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #031710;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #dfb76c;
+            border-radius: 4px;
+        }
+
+        /* Gold Metallic Gradient Text */
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #dfb76c 0%, #fff9d6 30%, #c59b27 60%, #f5d77f 85%, #9b7617 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gold-shimmer-bg {
+            background: linear-gradient(135deg, rgba(223,183,108,0.12) 0%, rgba(255,249,214,0.05) 50%, rgba(197,155,39,0.18) 100%);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #c59b27 0%, #f5d77f 50%, #9b7617 100%);
+            color: #031710;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(223, 183, 108, 0.3);
+        }
+        .btn-gold:hover {
+            box-shadow: 0 6px 22px rgba(223, 183, 108, 0.6);
+            transform: translateY(-2px);
+        }
+
+        /* Canvas background overlay */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Toast Notification */
+        #toast {
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            transform: translateY(100px);
+            opacity: 0;
+        }
+        #toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Print Media Stylesheet */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: #ffffff !important;
+                color: #111111 !important;
+            }
+            .print-container {
+                border: 3px double #73540b !important;
+                box-shadow: none !important;
+                background: #ffffff !important;
+                color: #111111 !important;
+            }
+            .gold-gradient-text {
+                -webkit-text-fill-color: #73540b !important;
+                color: #73540b !important;
+            }
+            .bg-emerald-950, .bg-emerald-900, .bg-emerald-850 {
+                background-color: #ffffff !important;
+                color: #111111 !important;
+            }
+            .text-amber-100, .text-gold-200, .text-gold-300 {
+                color: #222222 !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-emerald-950 text-amber-100 font-sans min-h-screen relative overflow-x-hidden selection:bg-gold-400 selection:text-emerald-950">
+
+    <!-- Background Gold Dust Animation Canvas -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Toast Banner -->
+    <div id="toast" class="no-print fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 bg-gold-400 text-emerald-950 font-cinzel font-bold px-6 py-3 rounded-full shadow-2xl flex items-center space-x-2 border border-amber-100">
+        <i class="fas fa-check-circle text-lg"></i>
+        <span id="toast-msg">Invitation details copied to clipboard!</span>
+    </div>
+
+    <!-- Floating Quick Bar Header (No Print) -->
+    <header class="no-print fixed top-3 right-3 sm:top-5 sm:right-5 z-50 flex items-center space-x-2 bg-emerald-900/90 backdrop-blur-md p-2 px-3 rounded-full border border-gold-400/40 shadow-2xl">
+        <!-- Audio Ambient Music Toggle -->
+        <button id="audio-toggle" onclick="toggleAudio()" title="Play Oriental Ambient Music" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-emerald-800 text-gold-300 hover:text-gold-100 border border-gold-400/30 transition-all hover:scale-105">
+            <i id="audio-icon" class="fas fa-music text-xs sm:text-sm"></i>
+        </button>
+        <audio id="ambient-audio" loop preload="auto">
+            <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=arabic-oriental-background-113540.mp3" type="audio/mpeg">
+        </audio>
+
+        <!-- Share on WhatsApp -->
+        <button onclick="shareOnWhatsApp()" title="Share Invitation via WhatsApp" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-emerald-800 text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 transition-all hover:scale-105">
+            <i class="fab fa-whatsapp text-sm sm:text-base"></i>
+        </button>
+
+        <!-- Copy Text Link -->
+        <button onclick="copyInvitationText()" title="Copy Invitation Details" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-emerald-800 text-gold-300 hover:text-gold-100 border border-gold-400/30 transition-all hover:scale-105">
+            <i class="fas fa-copy text-xs sm:text-sm"></i>
+        </button>
+
+        <!-- Print Card -->
+        <button onclick="window.print()" title="Print Invitation Card" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-emerald-800 text-gold-300 hover:text-gold-100 border border-gold-400/30 transition-all hover:scale-105">
+            <i class="fas fa-print text-xs sm:text-sm"></i>
+        </button>
+    </header>
+
+    <!-- Main Invitation Frame -->
+    <main class="relative z-10 max-w-5xl mx-auto px-4 py-8 sm:py-12 min-h-screen flex flex-col justify-center">
+
+        <!-- Card Container with Dual Metallic Gold Borders -->
+        <div id="main-card" class="print-container relative bg-gradient-to-b from-emerald-900 via-emerald-950 to-emerald-900 border-2 sm:border-4 border-gold-400/70 rounded-3xl p-4 sm:p-10 md:p-12 shadow-[0_0_50px_rgba(223,183,108,0.25)]">
+            
+            <!-- Corner Arabesque SVG Flourishes -->
+            <div class="absolute top-3 left-3 sm:top-5 sm:left-5 w-12 sm:w-16 h-12 sm:h-16 text-gold-400/70 pointer-events-none">
+                <svg viewBox="0 0 100 100" fill="currentColor"><path d="M0 0 v50 c0 -25 25 -50 50 -50 h-50 Z M10 10 v30 c0 -15 15 -30 30 -30 h-30 Z"/></svg>
+            </div>
+            <div class="absolute top-3 right-3 sm:top-5 sm:right-5 w-12 sm:w-16 h-12 sm:h-16 text-gold-400/70 pointer-events-none transform rotate-90">
+                <svg viewBox="0 0 100 100" fill="currentColor"><path d="M0 0 v50 c0 -25 25 -50 50 -50 h-50 Z M10 10 v30 c0 -15 15 -30 30 -30 h-30 Z"/></svg>
+            </div>
+            <div class="absolute bottom-3 left-3 sm:bottom-5 sm:left-5 w-12 sm:w-16 h-12 sm:h-16 text-gold-400/70 pointer-events-none transform -rotate-90">
+                <svg viewBox="0 0 100 100" fill="currentColor"><path d="M0 0 v50 c0 -25 25 -50 50 -50 h-50 Z M10 10 v30 c0 -15 15 -30 30 -30 h-30 Z"/></svg>
+            </div>
+            <div class="absolute bottom-3 right-3 sm:bottom-5 sm:right-5 w-12 sm:w-16 h-12 sm:h-16 text-gold-400/70 pointer-events-none transform rotate-180">
+                <svg viewBox="0 0 100 100" fill="currentColor"><path d="M0 0 v50 c0 -25 25 -50 50 -50 h-50 Z M10 10 v30 c0 -15 15 -30 30 -30 h-30 Z"/></svg>
+            </div>
+
+            <!-- Inner Arch Frame -->
+            <div class="border border-gold-400/30 rounded-2xl p-4 sm:p-8 md:p-10 relative overflow-hidden bg-emerald-950/80 backdrop-blur-sm">
+                
+                <!-- Central Watermark Geometric Star Motif -->
+                <div class="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
+                    <svg class="w-80 h-80 sm:w-[500px] sm:h-[500px] text-gold-300" viewBox="0 0 200 200" fill="currentColor">
+                        <polygon points="100,10 120,40 160,30 150,70 190,90 160,120 180,160 140,150 120,190 90,160 60,190 50,150 10,160 30,120 0,90 40,70 30,30 70,40" opacity="0.8"/>
+                        <circle cx="100" cy="100" r="70" fill="none" stroke="currentColor" stroke-width="3"/>
+                    </svg>
+                </div>
+
+                <!-- HEADER & BISMILLAH SECTION -->
+                <div class="text-center space-y-5 sm:space-y-6 relative z-10">
+                    
+                    <!-- Top Crescent Decorator -->
+                    <div class="flex items-center justify-center space-x-3 text-gold-300">
+                        <div class="h-px w-12 sm:w-24 bg-gradient-to-r from-transparent to-gold-400"></div>
+                        <i class="fas fa-star-and-crescent text-lg sm:text-xl"></i>
+                        <div class="h-px w-12 sm:w-24 bg-gradient-to-l from-transparent to-gold-400"></div>
+                    </div>
+
+                    <!-- HIJRI & GREGORIAN MAIN DATES HEADER -->
+                    <div class="inline-block bg-emerald-900/80 border border-gold-400/50 rounded-full px-6 py-2 shadow-md">
+                        <span class="font-arabic text-sm sm:text-base text-gold-200 font-bold block">
+                            ١٠ - ١١ رجب ١٤٤٨ هـ
+                        </span>
+                        <span class="font-cinzel text-xs sm:text-sm text-amber-100 font-semibold tracking-wider uppercase block mt-0.5">
+                            10th & 11th Rajab 1448 AH &nbsp;|&nbsp; 19th & 20th December 2026
+                        </span>
+                    </div>
+
+                    <!-- Bismillah Calligraphy -->
+                    <div class="space-y-2">
+                        <h1 class="font-arabic text-3xl sm:text-5xl text-gold-300 leading-relaxed font-bold gold-gradient-text tracking-wide drop-shadow-md">
+                            بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
+                        </h1>
+                        <p class="font-cormorant italic text-sm sm:text-base text-amber-200/90 max-w-xl mx-auto">
+                            "In the name of Allah, the Most Gracious, the Most Merciful"
+                        </p>
+                    </div>
+
+                    <!-- Quranic Verse Box -->
+                    <div class="gold-shimmer-bg p-4 sm:p-6 rounded-xl border border-gold-400/40 max-w-3xl mx-auto shadow-inner space-y-3">
+                        <p class="font-arabic text-lg sm:text-2xl text-gold-200 leading-loose">
+                            "وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً"
+                        </p>
+                        <p class="font-cormorant text-xs sm:text-base text-amber-100/90 italic leading-relaxed">
+                            "And of His signs is that He created for you from yourselves mates that you may find tranquility in them; and He placed between you affection and mercy."
+                        </p>
+                        <span class="inline-block text-[11px] font-cinzel tracking-widest text-gold-300 uppercase font-semibold">
+                            — Surah Ar-Rum (30:21) —
+                        </span>
+                    </div>
+
+                    <!-- Real-Time Countdown Timer -->
+                    <div class="no-print pt-2 pb-2">
+                        <p class="font-cinzel text-[11px] text-gold-300 uppercase tracking-widest mb-2.5 font-semibold">Counting Down To The Wedding Celebrations</p>
+                        <div id="countdown" class="flex justify-center items-center gap-3 sm:gap-5">
+                            <div class="bg-emerald-950/90 border border-gold-400/40 rounded-xl p-2.5 min-w-[60px] sm:min-w-[75px]">
+                                <span id="cd-days" class="font-cinzel text-lg sm:text-2xl font-bold text-gold-200 block">00</span>
+                                <span class="text-[9px] sm:text-[11px] text-amber-200 uppercase font-sans">Days</span>
+                            </div>
+                            <div class="bg-emerald-950/90 border border-gold-400/40 rounded-xl p-2.5 min-w-[60px] sm:min-w-[75px]">
+                                <span id="cd-hours" class="font-cinzel text-lg sm:text-2xl font-bold text-gold-200 block">00</span>
+                                <span class="text-[9px] sm:text-[11px] text-amber-200 uppercase font-sans">Hours</span>
+                            </div>
+                            <div class="bg-emerald-950/90 border border-gold-400/40 rounded-xl p-2.5 min-w-[60px] sm:min-w-[75px]">
+                                <span id="cd-minutes" class="font-cinzel text-lg sm:text-2xl font-bold text-gold-200 block">00</span>
+                                <span class="text-[9px] sm:text-[11px] text-amber-200 uppercase font-sans">Mins</span>
+                            </div>
+                            <div class="bg-emerald-950/90 border border-gold-400/40 rounded-xl p-2.5 min-w-[60px] sm:min-w-[75px]">
+                                <span id="cd-seconds" class="font-cinzel text-lg sm:text-2xl font-bold text-gold-200 block">00</span>
+                                <span class="text-[9px] sm:text-[11px] text-amber-200 uppercase font-sans">Secs</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Invitation Formal Salutation -->
+                    <div class="pt-2">
+                        <p class="font-cinzel text-xs sm:text-sm uppercase tracking-widest text-gold-200/80">
+                            Together with their families
+                        </p>
+                        <h2 class="font-cormorant text-xl sm:text-2xl text-amber-100 font-light mt-1">
+                            Solicit your gracious presence and blessings at the auspicious wedding ceremony of
+                        </h2>
+                    </div>
+                </div>
+
+                <!-- BRIDE & GROOM DETAILS SECTION -->
+                <div class="my-8 sm:my-12 grid grid-cols-1 md:grid-cols-11 gap-6 items-center relative z-10">
+                    
+                    <!-- Groom Side -->
+                    <div class="md:col-span-5 text-center p-5 sm:p-7 rounded-2xl bg-emerald-900/50 border border-gold-400/30 hover:border-gold-300 transition-all shadow-xl group">
+                        <span class="text-[11px] font-cinzel text-gold-300 uppercase tracking-widest block mb-1.5">The Groom</span>
+                        <h3 class="font-cinzel text-xl sm:text-2xl font-bold text-gold-200 group-hover:scale-105 transition-transform duration-300">
+                            S.M.B. Irshadh Ahamed
+                        </h3>
+                        <p class="font-sans text-xs text-amber-200/90 mt-1 font-semibold tracking-wider">
+                            B.E (CSE)
+                        </p>
+                        
+                        <div class="w-16 h-px bg-gold-400/50 mx-auto my-3"></div>
+                        
+                        <div class="space-y-0.5">
+                            <span class="text-[10px] font-cinzel text-amber-300/70 uppercase tracking-wider block">Son of</span>
+                            <p class="font-cormorant text-base font-semibold text-amber-100">
+                                K.M.S. Syed Mohamed Buhari
+                            </p>
+                            <p class="font-cormorant text-xs sm:text-sm text-amber-200/80">
+                                & A.M.T. Halimuthu Sithika
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Central Ring Crest -->
+                    <div class="md:col-span-1 flex flex-col items-center justify-center my-1 md:my-0">
+                        <div class="w-12 h-12 rounded-full border-2 border-gold-300 flex items-center justify-center bg-emerald-950 text-gold-300 font-serif italic text-xl shadow-[0_0_15px_rgba(223,183,108,0.4)]">
+                            &
+                        </div>
+                    </div>
+
+                    <!-- Bride Side -->
+                    <div class="md:col-span-5 text-center p-5 sm:p-7 rounded-2xl bg-emerald-900/50 border border-gold-400/30 hover:border-gold-300 transition-all shadow-xl group">
+                        <span class="text-[11px] font-cinzel text-gold-300 uppercase tracking-widest block mb-1.5">The Bride</span>
+                        <h3 class="font-cinzel text-xl sm:text-2xl font-bold text-gold-200 group-hover:scale-105 transition-transform duration-300">
+                            Al Haafila S.I. Sara Farha
+                        </h3>
+                        <p class="font-sans text-xs text-amber-200/90 mt-1 font-semibold tracking-wider">
+                            Aalima Maskariya
+                        </p>
+
+                        <div class="w-16 h-px bg-gold-400/50 mx-auto my-3"></div>
+
+                        <div class="space-y-0.5">
+                            <span class="text-[10px] font-cinzel text-amber-300/70 uppercase tracking-wider block">Daughter of</span>
+                            <p class="font-cormorant text-base font-semibold text-amber-100">
+                                M.T. Syed Ibrahim
+                            </p>
+                            <p class="font-cormorant text-xs sm:text-sm text-amber-200/80">
+                                & H.M. Yusuf Sulaiha
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- OCCASIONS SECTION -->
+                <div class="space-y-6 relative z-10 my-8">
+                    <div class="text-center space-y-1">
+                        <h3 class="font-cinzel text-xl sm:text-2xl font-bold text-gold-300 uppercase tracking-widest">
+                            Occasion Details
+                        </h3>
+                        <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-gold-400 to-transparent mx-auto"></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        
+                        <!-- OCCASION 1: RECEPTION -->
+                        <div class="bg-emerald-900/40 border border-gold-400/40 rounded-2xl p-5 flex flex-col justify-between hover:border-gold-300 transition-all shadow-lg relative group">
+                            <div class="space-y-3">
+                                <!-- Top Hijri Date -->
+                                <div class="text-center border-b border-gold-400/20 pb-2">
+                                    <span class="text-xs font-arabic text-gold-200 font-bold block">
+                                        ١٠ رجب ١٤٤٨ هـ
+                                    </span>
+                                    <span class="text-[10px] font-cinzel text-gold-300 font-semibold tracking-wider uppercase block">
+                                        10th Rajab 1448 AH
+                                    </span>
+                                </div>
+
+                                <!-- Title & Time -->
+                                <div class="text-center space-y-0.5">
+                                    <h4 class="font-cinzel text-lg font-bold text-amber-100">RECEPTION</h4>
+                                    <p class="font-sans text-xs text-gold-200 flex items-center justify-center space-x-1">
+                                        <i class="far fa-clock text-gold-300"></i>
+                                        <span>4.30 PM Onwards</span>
+                                    </p>
+                                </div>
+
+                                <!-- Gregorian Date Below -->
+                                <div class="bg-emerald-950/80 text-center py-1.5 px-2 rounded-lg border border-gold-400/20">
+                                    <p class="font-cinzel text-xs font-semibold text-gold-200">
+                                        Saturday, 19th December 2026
+                                    </p>
+                                </div>
+
+                                <!-- Venue Address -->
+                                <div class="text-center text-xs text-amber-200/90 font-cormorant text-sm">
+                                    <p class="font-bold text-gold-300">Groom's Residence</p>
+                                    <p>2B Solukkar Street,</p>
+                                    <p>Kayalpatnam.</p>
+                                </div>
+
+                                <!-- Live Reliable QR Code -->
+                                <div class="flex flex-col items-center justify-center pt-2">
+                                    <a href="https://www.google.com/maps/search/?api=1&query=2B+Solukkar+Street+Kayalpatnam" target="_blank" rel="noopener" class="block p-1.5 bg-white rounded-xl shadow-lg border-2 border-gold-400 hover:scale-105 transition-transform">
+                                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https%3A%2F%2Fwww.google.com%2Fmaps%2Fsearch%2F%3Fapi%3D1%26query%3D2B%2BSolukkar%2BStreet%2BKayalpatnam" alt="QR Code for Groom Residence" class="w-24 h-24 object-contain">
+                                    </a>
+                                    <span class="text-[10px] font-sans text-amber-300/80 mt-1.5 font-medium">Click / Scan for Directions</span>
+                                </div>
+                            </div>
+
+                            <!-- Interactive Action Buttons -->
+                            <div class="mt-4 space-y-2 pt-3 border-t border-gold-400/20">
+                                <a href="https://www.google.com/maps/search/?api=1&query=2B+Solukkar+Street+Kayalpatnam" target="_blank" rel="noopener" class="w-full py-1.5 px-3 rounded-lg text-xs font-cinzel font-semibold flex items-center justify-center space-x-1.5 border border-gold-400/50 text-gold-200 hover:bg-gold-400 hover:text-emerald-950 transition-all">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>Google Maps</span>
+                                </a>
+                                <button onclick="addToCalendar('Reception', '2026-12-19T16:30:00', 'Groom Residence, 2B Solukkar Street, Kayalpatnam')" class="w-full py-1.5 px-3 rounded-lg text-xs font-cinzel font-semibold flex items-center justify-center space-x-1.5 bg-emerald-800/80 text-amber-100 hover:bg-emerald-700 transition-all">
+                                    <i class="far fa-calendar-plus"></i>
+                                    <span>Add to Calendar</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- OCCASION 2: NIKKAH -->
+                        <div class="bg-emerald-900/60 border-2 border-gold-300 rounded-2xl p-5 flex flex-col justify-between hover:border-gold-200 transition-all shadow-2xl relative group">
+                            <div class="absolute top-0 right-0 bg-gold-400 text-emerald-950 font-cinzel font-bold text-[9px] uppercase px-2.5 py-0.5 rounded-bl-lg">
+                                Main Ceremony
+                            </div>
+
+                            <div class="space-y-3">
+                                <!-- Top Hijri Date -->
+                                <div class="text-center border-b border-gold-400/20 pb-2">
+                                    <span class="text-xs font-arabic text-gold-200 font-bold block">
+                                        ١١ رجب ١٤٤٨ هـ
+                                    </span>
+                                    <span class="text-[10px] font-cinzel text-gold-300 font-semibold tracking-wider uppercase block">
+                                        11th Rajab 1448 AH
+                                    </span>
+                                </div>
+
+                                <!-- Title & Time -->
+                                <div class="text-center space-y-0.5">
+                                    <h4 class="font-cinzel text-xl font-bold text-gold-200">NIKKAH</h4>
+                                    <p class="font-sans text-xs text-gold-200 flex items-center justify-center space-x-1">
+                                        <i class="far fa-clock text-gold-300"></i>
+                                        <span>9.00 AM Onwards</span>
+                                    </p>
+                                </div>
+
+                                <!-- Gregorian Date Below -->
+                                <div class="bg-emerald-950 text-center py-1.5 px-2 rounded-lg border border-gold-400/40">
+                                    <p class="font-cinzel text-xs font-semibold text-gold-200">
+                                        Sunday, 20th December 2026
+                                    </p>
+                                </div>
+
+                                <!-- Venue Address -->
+                                <div class="text-center text-xs text-amber-200/90 font-cormorant text-sm">
+                                    <p class="font-bold text-gold-300">Bride's Residence</p>
+                                    <p>424A Sadukai Street,</p>
+                                    <p>Kayalpatnam.</p>
+                                </div>
+
+                                <!-- Live Reliable QR Code -->
+                                <div class="flex flex-col items-center justify-center pt-2">
+                                    <a href="https://www.google.com/maps/search/?api=1&query=424A+Sadukai+Street+Kayalpatnam" target="_blank" rel="noopener" class="block p-1.5 bg-white rounded-xl shadow-lg border-2 border-gold-400 hover:scale-105 transition-transform">
+                                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https%3A%2F%2Fwww.google.com%2Fmaps%2Fsearch%2F%3Fapi%3D1%26query%3D424A%2BSadukai%2BStreet%2BKayalpatnam" alt="QR Code for Bride Residence" class="w-24 h-24 object-contain">
+                                    </a>
+                                    <span class="text-[10px] font-sans text-amber-300/80 mt-1.5 font-medium">Click / Scan for Directions</span>
+                                </div>
+                            </div>
+
+                            <!-- Interactive Action Buttons -->
+                            <div class="mt-4 space-y-2 pt-3 border-t border-gold-400/20">
+                                <a href="https://www.google.com/maps/search/?api=1&query=424A+Sadukai+Street+Kayalpatnam" target="_blank" rel="noopener" class="w-full py-1.5 px-3 rounded-lg text-xs font-cinzel font-semibold flex items-center justify-center space-x-1.5 border border-gold-400/50 text-gold-200 hover:bg-gold-400 hover:text-emerald-950 transition-all">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>Google Maps</span>
+                                </a>
+                                <button onclick="addToCalendar('Nikkah Ceremony', '2026-12-20T09:00:00', 'Bride Residence, 424A Sadukai Street, Kayalpatnam')" class="w-full py-1.5 px-3 rounded-lg text-xs font-cinzel font-semibold flex items-center justify-center space-x-1.5 bg-emerald-800/80 text-amber-100 hover:bg-emerald-700 transition-all">
+                                    <i class="far fa-calendar-plus"></i>
+                                    <span>Add to Calendar</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- OCCASION 3: FEAST -->
+                        <div class="bg-emerald-900/40 border border-gold-400/40 rounded-2xl p-5 flex flex-col justify-between hover:border-gold-300 transition-all shadow-lg relative group">
+                            <div class="space-y-3">
+                                <!-- Top Hijri Date -->
+                                <div class="text-center border-b border-gold-400/20 pb-2">
+                                    <span class="text-xs font-arabic text-gold-200 font-bold block">
+                                        ١١ رجب ١٤٤٨ هـ
+                                    </span>
+                                    <span class="text-[10px] font-cinzel text-gold-300 font-semibold tracking-wider uppercase block">
+                                        11th Rajab 1448 AH
+                                    </span>
+                                </div>
+
+                                <!-- Title & Time -->
+                                <div class="text-center space-y-0.5">
+                                    <h4 class="font-cinzel text-lg font-bold text-amber-100">WALIMA FEAST</h4>
+                                    <p class="font-sans text-xs text-gold-200 flex items-center justify-center space-x-1">
+                                        <i class="far fa-clock text-gold-300"></i>
+                                        <span>11.00 AM Onwards</span>
+                                    </p>
+                                </div>
+
+                                <!-- Gregorian Date Below -->
+                                <div class="bg-emerald-950/80 text-center py-1.5 px-2 rounded-lg border border-gold-400/20">
+                                    <p class="font-cinzel text-xs font-semibold text-gold-200">
+                                        Sunday, 20th December 2026
+                                    </p>
+                                </div>
+
+                                <!-- Venue Address -->
+                                <div class="text-center text-xs text-amber-200/90 font-cormorant text-sm">
+                                    <p class="font-bold text-gold-300">Groom's Residence</p>
+                                    <p>2B Solukkar Street,</p>
+                                    <p>Kayalpatnam.</p>
+                                </div>
+
+                                <!-- Live Reliable QR Code -->
+                                <div class="flex flex-col items-center justify-center pt-2">
+                                    <a href="https://www.google.com/maps/search/?api=1&query=2B+Solukkar+Street+Kayalpatnam" target="_blank" rel="noopener" class="block p-1.5 bg-white rounded-xl shadow-lg border-2 border-gold-400 hover:scale-105 transition-transform">
+                                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https%3A%2F%2Fwww.google.com%2Fmaps%2Fsearch%2F%3Fapi%3D1%26query%3D2B%2BSolukkar%2BStreet%2BKayalpatnam" alt="QR Code for Feast Venue" class="w-24 h-24 object-contain">
+                                    </a>
+                                    <span class="text-[10px] font-sans text-amber-300/80 mt-1.5 font-medium">Click / Scan for Directions</span>
+                                </div>
+                            </div>
+
+                            <!-- Interactive Action Buttons -->
+                            <div class="mt-4 space-y-2 pt-3 border-t border-gold-400/20">
+                                <a href="https://www.google.com/maps/search/?api=1&query=2B+Solukkar+Street+Kayalpatnam" target="_blank" rel="noopener" class="w-full py-1.5 px-3 rounded-lg text-xs font-cinzel font-semibold flex items-center justify-center space-x-1.5 border border-gold-400/50 text-gold-200 hover:bg-gold-400 hover:text-emerald-950 transition-all">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>Google Maps</span>
+                                </a>
+                                <button onclick="addToCalendar('Walima Feast', '2026-12-20T11:00:00', 'Groom Residence, 2B Solukkar Street, Kayalpatnam')" class="w-full py-1.5 px-3 rounded-lg text-xs font-cinzel font-semibold flex items-center justify-center space-x-1.5 bg-emerald-800/80 text-amber-100 hover:bg-emerald-700 transition-all">
+                                    <i class="far fa-calendar-plus"></i>
+                                    <span>Add to Calendar</span>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- FOOTER & BARAKALLAH CLOSING PRAYER -->
+                <div class="pt-6 border-t border-gold-400/30 text-center space-y-5 relative z-10">
+                    
+                    <!-- Barakallah Calligraphy & Quote -->
+                    <div class="max-w-2xl mx-auto space-y-2">
+                        <h4 class="font-arabic text-xl sm:text-3xl text-gold-300 font-bold leading-relaxed">
+                            بَارَكَ ٱللَّهُ لَكُمَا وَبَارَكَ عَلَيْكُمَا وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ
+                        </h4>
+                        <p class="font-cormorant italic text-sm sm:text-base text-amber-100/90 max-w-lg mx-auto">
+                            "May Allah bless you, and shower His blessings upon you, and join you together in goodness."
+                        </p>
+                        <p class="font-sans text-[11px] text-gold-300/80 tracking-wider">
+                            (Barakallahu Lakuma Wabaraka Alaika Wa Jama'a Bainakuma Fee Khair)
+                        </p>
+                    </div>
+
+                    <!-- Best Compliments -->
+                    <div class="pt-2 space-y-1">
+                        <p class="font-cinzel text-[10px] uppercase tracking-widest text-gold-300 font-semibold">
+                            With Best Compliments From
+                        </p>
+                        <p class="font-cormorant text-base sm:text-lg text-amber-200 font-medium">
+                            Near & Dear Relatives, Family Members & Friends
+                        </p>
+                    </div>
+
+                    <div class="flex items-center justify-center space-x-3 text-gold-400/60 pt-2">
+                        <div class="h-px w-16 sm:w-28 bg-gradient-to-r from-transparent to-gold-400/60"></div>
+                        <i class="fas fa-heart text-xs"></i>
+                        <div class="h-px w-16 sm:w-28 bg-gradient-to-l from-transparent to-gold-400/60"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Direct Action Buttons at Bottom (No Print) -->
+        <div class="no-print mt-6 flex flex-col space-y-3 items-center justify-center">
+            
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-lg">
+                <!-- WhatsApp Share Button -->
+                <button onclick="shareOnWhatsApp()" class="w-full py-3.5 px-6 rounded-full font-cinzel font-bold text-xs tracking-wider bg-emerald-700 hover:bg-emerald-600 text-white transition-all shadow-xl flex items-center justify-center space-x-2 border border-emerald-400/40">
+                    <i class="fab fa-whatsapp text-lg"></i>
+                    <span>Share via WhatsApp</span>
+                </button>
+
+                <!-- Copy Details Button -->
+                <button onclick="copyInvitationText()" class="w-full py-3.5 px-6 rounded-full font-cinzel font-bold text-xs tracking-wider border-2 border-gold-400 text-gold-200 hover:bg-gold-400 hover:text-emerald-950 transition-all flex items-center justify-center space-x-2">
+                    <i class="fas fa-copy text-base"></i>
+                    <span>Copy Invitation Details</span>
+                </button>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- JavaScript Interactions -->
+    <script>
+        // Custom URL for fallback sharing (Change this to your active site domain if needed)
+        const CUSTOM_FALLBACK_URL = window.location.href.includes('http') ? window.location.href : "https://maps.google.com";
+
+        // Display Toast Banner
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            toastMsg.innerText = msg || "Copied to clipboard!";
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // WhatsApp Pre-Formatted Sharing Text
+        function shareOnWhatsApp() {
+            const message = 
+                "✨ *Bismillahir Rahmanir Raheem* ✨\n\n" +
+                "You are cordially invited to the auspicious wedding ceremony of:\n\n" +
+                "🤵 *S.M.B. Irshadh Ahamed* B.E (CSE)\n" +
+                "_(S/O K.M.S. Syed Mohamed Buhari & A.M.T. Halimuthu Sithika)_\n\n" +
+                "& \n\n" +
+                "👰 *Al Haafila S.I. Sara Farha* Aalima Maskariya\n" +
+                "_(D/O M.T. Syed Ibrahim & H.M. Yusuf Sulaiha)_\n\n" +
+                "📅 *Occasion Dates:*\n" +
+                "• *Reception:* Saturday, 19th Dec 2026 @ 4.30 PM Onwards\n" +
+                "  📍 Groom's Residence: 2B Solukkar Street, Kayalpatnam\n\n" +
+                "• *Nikkah:* Sunday, 20th Dec 2026 @ 9.00 AM Onwards\n" +
+                "  📍 Bride's Residence: 424A Sadukai Street, Kayalpatnam\n\n" +
+                "• *Walima Feast:* Sunday, 20th Dec 2026 @ 11.00 AM Onwards\n" +
+                "  📍 Groom's Residence: 2B Solukkar Street, Kayalpatnam\n\n" +
+                "📍 *Google Maps Directions:*\n" +
+                "• Groom Residence: https://www.google.com/maps/search/?api=1&query=2B+Solukkar+Street+Kayalpatnam\n" +
+                "• Bride Residence: https://www.google.com/maps/search/?api=1&query=424A+Sadukai+Street+Kayalpatnam\n\n" +
+                "_Barakallahu lakuma wa baraka 'alaykuma wa jama'a baynakuma fii khayr._";
+
+            const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+            window.open(waUrl, '_blank');
+        }
+
+        // Copy Plaintext Details to Clipboard
+        function copyInvitationText() {
+            const textToCopy = 
+                "Bismillahir Rahmanir Raheem\n\n" +
+                "Wedding Invitation: S.M.B. Irshadh Ahamed & Al Haafila S.I. Sara Farha\n\n" +
+                "Dates: 19th & 20th December 2026 (10th & 11th Rajab 1448 AH)\n" +
+                "Location: Kayalpatnam\n\n" +
+                "Reception: 19th Dec 2026, 4:30 PM @ 2B Solukkar Street, Kayalpatnam\n" +
+                "Nikkah: 20th Dec 2026, 9:00 AM @ 424A Sadukai Street, Kayalpatnam\n" +
+                "Feast: 20th Dec 2026, 11:00 AM @ 2B Solukkar Street, Kayalpatnam";
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    showToast("Invitation details copied to clipboard!");
+                }).catch(() => {
+                    fallbackCopyText(textToCopy);
+                });
+            } else {
+                fallbackCopyText(textToCopy);
+            }
+        }
+
+        function fallbackCopyText(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast("Invitation details copied!");
+            } catch (err) {
+                showToast("Please copy manually.");
+            }
+            document.body.removeChild(textArea);
+        }
+
+        // Countdown Timer
+        function startCountdown() {
+            const eventDate = new Date("December 19, 2026 16:30:00").getTime();
+
+            function update() {
+                const now = new Date().getTime();
+                const distance = eventDate - now;
+
+                if (distance < 0) {
+                    document.getElementById("countdown").innerHTML = "<p class='font-cinzel text-gold-300 font-bold text-sm'>The Wedding Celebrations Have Begun!</p>";
+                    return;
+                }
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                document.getElementById("cd-days").innerText = days < 10 ? "0" + days : days;
+                document.getElementById("cd-hours").innerText = hours < 10 ? "0" + hours : hours;
+                document.getElementById("cd-minutes").innerText = minutes < 10 ? "0" + minutes : minutes;
+                document.getElementById("cd-seconds").innerText = seconds < 10 ? "0" + seconds : seconds;
+            }
+
+            update();
+            setInterval(update, 1000);
+        }
+
+        // Background Music Toggle
+        let isPlaying = false;
+        function toggleAudio() {
+            const audio = document.getElementById('ambient-audio');
+            const icon = document.getElementById('audio-icon');
+            if (isPlaying) {
+                audio.pause();
+                icon.className = "fas fa-music text-xs sm:text-sm";
+            } else {
+                audio.play().catch(e => console.log("Autoplay restriction prevented audio playback"));
+                icon.className = "fas fa-volume-up text-xs sm:text-sm text-gold-200";
+            }
+            isPlaying = !isPlaying;
+        }
+
+        // Add Event to Google Calendar
+        function addToCalendar(title, isoDateTime, location) {
+            const startTime = isoDateTime.replace(/-|:|\.\d\d\d/g, "");
+            const endDate = new Date(new Date(isoDateTime).getTime() + (3 * 60 * 60 * 1000));
+            const endTime = endDate.toISOString().replace(/-|:|\.\d\d\d/g, "").slice(0, 15) + "Z";
+            
+            const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('Wedding: ' + title + ' - Irshadh & Sara')}&dates=${startTime}Z/${endTime}&details=${encodeURIComponent('Wedding Ceremony of S.M.B. Irshadh Ahamed & Al Haafila S.I. Sara Farha.')}&location=${encodeURIComponent(location)}`;
+            window.open(calendarUrl, '_blank');
+        }
+
+        // Floating Dust Particles Initialization
+        function initParticles() {
+            const canvas = document.getElementById('particle-canvas');
+            const ctx = canvas.getContext('2d');
+            let width = canvas.width = window.innerWidth;
+            let height = canvas.height = window.innerHeight;
+
+            window.addEventListener('resize', () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            });
+
+            const particles = Array.from({ length: 30 }, () => ({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                radius: Math.random() * 2 + 0.5,
+                alpha: Math.random() * 0.5 + 0.2,
+                speedY: -(Math.random() * 0.3 + 0.1),
+                speedX: (Math.random() - 0.5) * 0.2
+            }));
+
+            function draw() {
+                ctx.clearRect(0, 0, width, height);
+                particles.forEach(p => {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(223, 183, 108, ${p.alpha})`;
+                    ctx.fill();
+
+                    p.y += p.speedY;
+                    p.x += p.speedX;
+
+                    if (p.y < 0) {
+                        p.y = height;
+                        p.x = Math.random() * width;
+                    }
+                });
+                requestAnimationFrame(draw);
+            }
+            draw();
+        }
+
+        window.addEventListener('load', function() {
+            initParticles();
+            startCountdown();
+        });
+    </script>
+</body>
+</html>
