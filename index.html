@@ -558,8 +558,8 @@
 
                 <!-- Bride -->
                 <div class="person-box">
-                    <div class="person-name">S.I. Sara Farha</div>
-                    <div class="person-degree">Aalima Mauskariya, \\(\overline{\text{Al Haafila}}\\)</div>
+                    <div class="person-name">Al Haafila S.I. Sara Farha</div>
+                    <div class="person-degree">Aalima Maskariya</div>
                     <div class="parents-info">
                         <strong>Daughter of</strong> M.T. Syed Ibrahim <br>&amp; H.M. Yusuf Sulaiha
                     </div>
@@ -703,16 +703,16 @@
         const GROOM_MAPS_LINK = "https://www.google.com/maps/place/H46H%2BXHV,+Customs+Rd,+Odakkarai,+Kayalpattinam,+Tamil+Nadu+628204/@8.5624868,78.1289494,17z";
         const BRIDE_MAPS_LINK = "https://www.google.com/maps/place/Sadukkai+St,+Kayalpattinam,+Tamil+Nadu+628204/data=!4m2!3m1!1s0x3b03921c5bc45bed:0x9d0303e58313edbd!18m1!1e1?g_st=aw";
 
-        // Generate reliable QR code URLs using encoded Google Maps links
+        // Generate QR code URLs
         document.getElementById('qr-reception').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(GROOM_MAPS_LINK)}`;
         document.getElementById('qr-nikkah').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(BRIDE_MAPS_LINK)}`;
         document.getElementById('qr-feast').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(GROOM_MAPS_LINK)}`;
 
         // Dynamic WhatsApp Share Link Generator
         function setupWhatsAppLink() {
-            const currentUrl = window.location.href.includes('http') ? window.location.href : 'https://wedding-invitation.app';
+            const currentUrl = window.location.href.includes('http') ? window.location.href : '';
             const messageText = `Bismillahir Rahmanir Raheem\n\n` +
-                `*IN VITATION TO THE WEDDING CEREMONY*\n\n` +
+                `*INVITATION TO THE WEDDING CEREMONY*\n\n` +
                 `*Groom:* S.M.B. Irshadh Ahamed B.E (CSE)\n` +
                 `*Bride:* Al Haafila S.I. Sara Farha Aalima Maskariya\n\n` +
                 `*Hijri Dates:* 10th & 11th Rajab 1448 AH\n` +
@@ -723,14 +723,14 @@
                 `3. *Walima Feast:* 20th Dec 2026 @ 11.00 AM (Groom's Residence)\n\n` +
                 `📍 *Groom Residence Location:* ${GROOM_MAPS_LINK}\n\n` +
                 `📍 *Bride Residence Location:* ${BRIDE_MAPS_LINK}\n\n` +
-                `View Full Web Invitation Card:\n${currentUrl}`;
+                (currentUrl ? `View Full Web Invitation Card:\n${currentUrl}` : '');
 
             const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(messageText)}`;
             document.getElementById('whatsapp-link').href = whatsappUrl;
         }
         setupWhatsAppLink();
 
-        // Countdown Timer to 19th Dec 2026 16:30:00
+        // Countdown Timer
         const weddingDate = new Date('2026-12-19T16:30:00').getTime();
 
         function updateCountdown() {
@@ -758,7 +758,7 @@
         setInterval(updateCountdown, 1000);
         updateCountdown();
 
-        // Theme Toggle (Emerald Green vs Royal Obsidian)
+        // Theme Toggle
         function toggleTheme() {
             const body = document.body;
             if (body.getAttribute('data-theme') === 'obsidian') {
