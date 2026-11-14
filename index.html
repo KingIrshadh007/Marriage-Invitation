@@ -603,12 +603,14 @@
         setInterval(updateCountdown, 1000);
         updateCountdown();
 
-        // Background nasheed: try audible autoplay when the page opens.
-        // Browsers may block sound autoplay; in that case, start muted and
-        // let the visitor tap the music button once to turn the sound on.
+        // Wedding nasheed playback.
+        // Try sound-on autoplay first. If blocked, use muted autoplay where possible,
+        // then enable sound on the visitor's first tap (a browser-required gesture).
         const ambientAudio = document.getElementById('ambient-audio');
         const audioIcon = document.getElementById('audio-icon');
         const audioButton = document.getElementById('audio-toggle');
+        let visitorChoseMute = false;
+        let soundEnabledByVisitor = false;
 
         function updateAudioButton() {
             if (!ambientAudio.paused && !ambientAudio.muted) {
@@ -630,45 +632,74 @@
             try {
                 ambientAudio.muted = false;
                 await ambientAudio.play();
+                updateAudioButton();
+                return;
             } catch (error) {
-                // Audible autoplay was blocked. Muted autoplay is commonly allowed.
-                try {
-                    ambientAudio.muted = true;
-                    await ambientAudio.play();
-                } catch (mutedError) {
-                    // If autoplay is fully blocked, the visitor can start it manually.
-                    ambientAudio.muted = false;
-                }
+                // Audible autoplay is blocked by many mobile browsers.
+            }
+            try {
+                ambientAudio.muted = true;
+                await ambientAudio.play();
+            } catch (mutedError) {
+                ambientAudio.muted = false;
+            }
+            updateAudioButton();
+        }
+
+        async function enableSoundAfterVisitorGesture() {
+            if (visitorChoseMute || soundEnabledByVisitor) return;
+            soundEnabledByVisitor = true;
+            try {
+                ambientAudio.muted = false;
+                await ambientAudio.play();
+            } catch (error) {
+                soundEnabledByVisitor = false;
             }
             updateAudioButton();
         }
 
         function toggleAudio() {
             if (ambientAudio.paused) {
+                visitorChoseMute = false;
+                soundEnabledByVisitor = true;
                 ambientAudio.muted = false;
                 ambientAudio.play().then(() => {
                     updateAudioButton();
                     showToast("Playing Islamic Wedding Nasheed");
                 }).catch(() => {
                     updateAudioButton();
-                    showToast("Tap again to allow audio playback");
+                    showToast("Please check your phone's media volume and tap again");
                 });
-            } else {
-                ambientAudio.muted = !ambientAudio.muted;
-                updateAudioButton();
-                showToast(ambientAudio.muted ? "Nasheed muted" : "Nasheed unmuted");
+                return;
             }
+            ambientAudio.muted = !ambientAudio.muted;
+            visitorChoseMute = ambientAudio.muted;
+            soundEnabledByVisitor = !ambientAudio.muted;
+            updateAudioButton();
+            showToast(ambientAudio.muted ? "Nasheed muted" : "Nasheed unmuted");
         }
+
+        // Any first tap on the page can unlock audio on mobile. The music button
+        // remains dedicated to play/mute so its click is not intercepted here.
+        document.addEventListener('pointerdown', (event) => {
+            if (event.target?.closest?.('#audio-toggle')) return;
+            enableSoundAfterVisitorGesture();
+        }, { once: true, passive: true });
+        document.addEventListener('touchend', (event) => {
+            if (event.target?.closest?.('#audio-toggle')) return;
+            enableSoundAfterVisitorGesture();
+        }, { once: true, passive: true });
 
         ambientAudio.addEventListener('play', updateAudioButton);
         ambientAudio.addEventListener('volumechange', updateAudioButton);
-        // Ask the browser to autoplay as soon as the page is ready. Audible autoplay
-        // is attempted first; if browser policy blocks it, muted playback is the fallback.
-        ambientAudio.autoplay = true;
-        if (document.readyState === 'complete') {
+        ambientAudio.addEventListener('error', () => {
+            showToast("Music could not load. Please check that the music folder is uploaded with the website.");
+        });
+
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
             startAmbientAudio();
         } else {
-            window.addEventListener('load', startAmbientAudio, { once: true });
+            window.addEventListener('DOMContentLoaded', startAmbientAudio, { once: true });
         }
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden && ambientAudio.paused) startAmbientAudio();
