@@ -147,11 +147,11 @@
     <!-- Floating Quick Bar Header (No Print) -->
     <header class="no-print fixed top-3 right-3 sm:top-5 sm:right-5 z-50 flex items-center space-x-2 bg-emerald-900/90 backdrop-blur-md p-2 px-3 rounded-full border border-gold-400/40 shadow-2xl">
         <!-- Audio Ambient Music Toggle -->
-        <button id="audio-toggle" onclick="toggleAudio()" title="Play Oriental Ambient Music" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-emerald-800 text-gold-300 hover:text-gold-100 border border-gold-400/30 transition-all hover:scale-105">
+        <button id="audio-toggle" onclick="toggleAudio()" title="Play Islamic Wedding Nasheed" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-emerald-800 text-gold-300 hover:text-gold-100 border border-gold-400/30 transition-all hover:scale-105">
             <i id="audio-icon" class="fas fa-music text-xs sm:text-sm"></i>
         </button>
         <audio id="ambient-audio" loop preload="auto">
-            <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=arabic-oriental-background-113540.mp3" type="audio/mpeg">
+            <source src="music/wedding-nasheed.mp3" type="audio/mpeg">
         </audio>
 
         <!-- Share on WhatsApp -->
@@ -592,7 +592,7 @@
             if (audio.paused) {
                 audio.play();
                 icon.className = "fas fa-volume-up text-xs sm:text-sm text-gold-100";
-                showToast("Playing Ambient Background Music");
+                showToast("Playing Islamic Wedding Nasheed");
             } else {
                 audio.pause();
                 icon.className = "fas fa-music text-xs sm:text-sm";
