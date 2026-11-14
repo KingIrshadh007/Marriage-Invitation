@@ -104,6 +104,24 @@
             opacity: 1;
         }
 
+
+        /* Keep the closing Arabic blessing fully visible on every screen size */
+        .arabic-closing {
+            direction: rtl;
+            unicode-bidi: plaintext;
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-break: normal;
+            line-height: 2.25 !important;
+            padding: 0.5rem 0.35rem 1rem;
+            text-align: center;
+            overflow: visible;
+        }
+
         /* Print Media Stylesheet */
         @media print {
             .no-print {
@@ -147,7 +165,7 @@
     <!-- Floating Quick Bar Header (No Print) -->
     <header class="no-print fixed top-3 right-3 sm:top-5 sm:right-5 z-50 flex items-center space-x-2 bg-emerald-900/90 backdrop-blur-md p-2 px-3 rounded-full border border-gold-400/40 shadow-2xl">
         <!-- Audio Ambient Music Toggle -->
-        <button id="audio-toggle" onclick="toggleAudio()" title="Play Islamic Wedding Nasheed" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-emerald-800 text-gold-300 hover:text-gold-100 border border-gold-400/30 transition-all hover:scale-105">
+        <button id="audio-toggle" onclick="toggleAudio()" title="Mute or unmute wedding nasheed" aria-label="Mute or unmute wedding nasheed" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-emerald-800 text-gold-300 hover:text-gold-100 border border-gold-400/30 transition-all hover:scale-105">
             <i id="audio-icon" class="fas fa-music text-xs sm:text-sm"></i>
         </button>
         <audio id="ambient-audio" loop preload="auto">
@@ -538,7 +556,7 @@
 
                 <!-- CLOSING BLESSINGS & PRAYER -->
                 <div class="text-center space-y-3 pt-6 border-t border-gold-400/30 relative z-10">
-                    <h3 class="font-arabic text-2xl sm:text-4xl text-gold-300 font-bold gold-gradient-text leading-[1.8] py-1">
+                    <h3 dir="rtl" lang="ar" class="arabic-closing font-arabic text-xl sm:text-3xl md:text-4xl text-gold-300 font-bold gold-gradient-text">
                         بَارَكَ ٱللَّٰهُ لَكُمَا وَبَارَكَ عَلَيْكُمَا وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ
                     </h3>
                     <p class="font-cormorant italic text-xs sm:text-base text-amber-200/90 max-w-xl mx-auto">
@@ -585,20 +603,66 @@
         setInterval(updateCountdown, 1000);
         updateCountdown();
 
-        // Audio Ambient Player Toggle
-        function toggleAudio() {
-            const audio = document.getElementById('ambient-audio');
-            const icon = document.getElementById('audio-icon');
-            if (audio.paused) {
-                audio.play();
-                icon.className = "fas fa-volume-up text-xs sm:text-sm text-gold-100";
-                showToast("Playing Islamic Wedding Nasheed");
+        // Background nasheed: try audible autoplay when the page opens.
+        // Browsers may block sound autoplay; in that case, start muted and
+        // let the visitor tap the music button once to turn the sound on.
+        const ambientAudio = document.getElementById('ambient-audio');
+        const audioIcon = document.getElementById('audio-icon');
+        const audioButton = document.getElementById('audio-toggle');
+
+        function updateAudioButton() {
+            if (!ambientAudio.paused && !ambientAudio.muted) {
+                audioIcon.className = "fas fa-volume-up text-xs sm:text-sm text-gold-100";
+                audioButton.title = "Mute wedding nasheed";
+                audioButton.setAttribute('aria-label', 'Mute wedding nasheed');
+            } else if (!ambientAudio.paused && ambientAudio.muted) {
+                audioIcon.className = "fas fa-volume-mute text-xs sm:text-sm text-gold-100";
+                audioButton.title = "Unmute wedding nasheed";
+                audioButton.setAttribute('aria-label', 'Unmute wedding nasheed');
             } else {
-                audio.pause();
-                icon.className = "fas fa-music text-xs sm:text-sm";
-                showToast("Audio Paused");
+                audioIcon.className = "fas fa-music text-xs sm:text-sm";
+                audioButton.title = "Play wedding nasheed";
+                audioButton.setAttribute('aria-label', 'Play wedding nasheed');
             }
         }
+
+        async function startAmbientAudio() {
+            try {
+                ambientAudio.muted = false;
+                await ambientAudio.play();
+            } catch (error) {
+                // Audible autoplay was blocked. Muted autoplay is commonly allowed.
+                try {
+                    ambientAudio.muted = true;
+                    await ambientAudio.play();
+                } catch (mutedError) {
+                    // If autoplay is fully blocked, the visitor can start it manually.
+                    ambientAudio.muted = false;
+                }
+            }
+            updateAudioButton();
+        }
+
+        function toggleAudio() {
+            if (ambientAudio.paused) {
+                ambientAudio.muted = false;
+                ambientAudio.play().then(() => {
+                    updateAudioButton();
+                    showToast("Playing Islamic Wedding Nasheed");
+                }).catch(() => {
+                    updateAudioButton();
+                    showToast("Tap again to allow audio playback");
+                });
+            } else {
+                ambientAudio.muted = !ambientAudio.muted;
+                updateAudioButton();
+                showToast(ambientAudio.muted ? "Nasheed muted" : "Nasheed unmuted");
+            }
+        }
+
+        ambientAudio.addEventListener('play', updateAudioButton);
+        ambientAudio.addEventListener('volumechange', updateAudioButton);
+        window.addEventListener('load', startAmbientAudio);
 
         // Add Event to Google Calendar Action
         function addToCalendar(title, startDate, location) {
