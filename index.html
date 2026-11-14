@@ -168,7 +168,7 @@
         <button id="audio-toggle" onclick="toggleAudio()" title="Mute or unmute wedding nasheed" aria-label="Mute or unmute wedding nasheed" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-emerald-800 text-gold-300 hover:text-gold-100 border border-gold-400/30 transition-all hover:scale-105">
             <i id="audio-icon" class="fas fa-music text-xs sm:text-sm"></i>
         </button>
-        <audio id="ambient-audio" loop preload="auto">
+        <audio id="ambient-audio" autoplay loop preload="auto" playsinline>
             <source src="music/wedding-nasheed.mp3" type="audio/mpeg">
         </audio>
 
@@ -662,7 +662,17 @@
 
         ambientAudio.addEventListener('play', updateAudioButton);
         ambientAudio.addEventListener('volumechange', updateAudioButton);
-        window.addEventListener('load', startAmbientAudio);
+        // Ask the browser to autoplay as soon as the page is ready. Audible autoplay
+        // is attempted first; if browser policy blocks it, muted playback is the fallback.
+        ambientAudio.autoplay = true;
+        if (document.readyState === 'complete') {
+            startAmbientAudio();
+        } else {
+            window.addEventListener('load', startAmbientAudio, { once: true });
+        }
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && ambientAudio.paused) startAmbientAudio();
+        });
 
         // Add Event to Google Calendar Action
         function addToCalendar(title, startDate, location) {
