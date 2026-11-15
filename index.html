@@ -122,6 +122,73 @@
             overflow: visible;
         }
 
+
+        /* Welcome surprise screen */
+        #welcome-screen {
+            position: fixed; inset: 0; z-index: 1000;
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px;
+            background: radial-gradient(circle at 50% 35%, rgba(197,155,39,.20), transparent 45%),
+                        linear-gradient(145deg, #031710, #0b4d36, #031710);
+            transition: opacity .9s ease, visibility .9s ease;
+        }
+        #welcome-screen.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+        .welcome-card {
+            width: 100%; max-width: 540px; padding: 45px 25px; text-align: center;
+            border: 2px solid rgba(223,183,108,.8); border-radius: 30px;
+            background: linear-gradient(160deg, rgba(11,77,54,.97), rgba(3,23,16,.99));
+            box-shadow: 0 0 60px rgba(223,183,108,.2);
+            position: relative; overflow: hidden;
+        }
+        .welcome-card::before, .welcome-card::after {
+            content: "✦"; position: absolute; color: #dfb76c; font-size: 65px; opacity: .35;
+        }
+        .welcome-card::before { top: 5px; left: 15px; }
+        .welcome-card::after { bottom: 5px; right: 15px; }
+        .welcome-decoration { color: #f5d77f; font-size: 35px; margin-bottom: 20px; animation: welcomeGlow 2s infinite alternate; }
+        .welcome-heading {
+            font-family: 'Cinzel', serif; color: #f5d77f;
+            font-size: clamp(25px, 6vw, 38px); font-weight: 700; line-height: 1.4; margin-bottom: 18px;
+        }
+        .welcome-message { font-family: 'Cormorant Garamond', serif; color: #fff9d6; font-size: 23px; line-height: 1.6; margin-bottom: 25px; }
+        .welcome-arabic { font-family: 'Amiri', serif; color: #dfb76c; font-size: 27px; margin-bottom: 22px; }
+        .open-invitation-btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+            padding: 15px 27px; border-radius: 50px;
+            background: linear-gradient(135deg, #c59b27, #fff0a6, #c59b27);
+            color: #031710; font-family: 'Cinzel', serif; font-size: 13px;
+            font-weight: 800; letter-spacing: 1px; box-shadow: 0 5px 25px rgba(223,183,108,.35);
+            transition: .3s; border: 0; cursor: pointer;
+        }
+        .open-invitation-btn:hover { transform: translateY(-4px) scale(1.03); box-shadow: 0 8px 30px rgba(223,183,108,.55); }
+        @keyframes welcomeGlow { from { transform: scale(1); opacity: .7; } to { transform: scale(1.15); opacity: 1; } }
+
+        /* Flower / petal blessing animation */
+        #flower-rain { position: fixed; inset: 0; z-index: 80; pointer-events: none; overflow: hidden; }
+        .flower-petal {
+            position: absolute; top: -50px; animation: flowerFall linear forwards;
+            will-change: transform, opacity; filter: drop-shadow(0 2px 4px rgba(0,0,0,.2));
+        }
+        @keyframes flowerFall {
+            0% { transform: translate3d(0,-30px,0) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            50% { transform: translate3d(70px,50vh,0) rotate(240deg); }
+            100% { transform: translate3d(-60px,110vh,0) rotate(650deg); opacity: 0; }
+        }
+        .blessing-button {
+            width: 38px; height: 38px; border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; background: #0b4d36;
+            color: #f5d77f; border: 1px solid rgba(223,183,108,.5); transition: .3s;
+        }
+        .blessing-button:hover { background: #c59b27; color: #031710; transform: scale(1.1); }
+        @media (max-width: 480px) {
+            .welcome-card { padding: 35px 20px; }
+            .welcome-message { font-size: 20px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .flower-petal { animation-duration: 3s !important; }
+        }
+
         /* Print Media Stylesheet */
         @media print {
             .no-print {
@@ -153,6 +220,30 @@
 </head>
 <body class="bg-emerald-950 text-amber-100 font-sans min-h-screen relative overflow-x-hidden selection:bg-gold-400 selection:text-emerald-950">
 
+    <!-- Welcome surprise screen -->
+    <section id="welcome-screen" aria-label="Wedding invitation welcome">
+        <div class="welcome-card">
+            <div class="welcome-decoration"><i class="fas fa-star-and-crescent"></i></div>
+            <p class="font-cinzel text-gold-200 text-xs tracking-widest mb-4">A SPECIAL SURPRISE FOR YOU</p>
+            <h1 class="welcome-heading">Someone Has A Beautiful Surprise!</h1>
+            <div class="welcome-arabic">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>
+            <p class="welcome-message">
+                Irshadh wants to give you a surprise!<br>
+                A special invitation filled with love, happiness and beautiful blessings awaits you.
+            </p>
+            <div class="text-gold-300 text-2xl mb-6">
+                <i class="fas fa-heart"></i><i class="fas fa-heart text-sm mx-2"></i><i class="fas fa-heart"></i>
+            </div>
+            <button type="button" onclick="openWeddingInvitation()" class="open-invitation-btn">
+                <i class="fas fa-envelope-open-text"></i>
+                <span>OPEN YOUR INVITATION</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+            <p class="font-cormorant italic text-amber-200/70 text-sm mt-7">With love and heartfelt duas</p>
+        </div>
+    </section>
+    <div id="flower-rain" aria-hidden="true"></div>
+
     <!-- Background Gold Dust Animation Canvas -->
     <canvas id="particle-canvas"></canvas>
 
@@ -168,7 +259,13 @@
         <button id="audio-toggle" onclick="toggleAudio()" title="Mute or unmute wedding nasheed" aria-label="Mute or unmute wedding nasheed" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-emerald-800 text-gold-300 hover:text-gold-100 border border-gold-400/30 transition-all hover:scale-105">
             <i id="audio-icon" class="fas fa-music text-xs sm:text-sm"></i>
         </button>
-        <audio id="ambient-audio" autoplay loop preload="auto" playsinline>
+
+        <!-- Blessings flower-rain button -->
+        <button id="blessing-toggle" onclick="startFlowerRain()" title="Send Beautiful Blessings"
+                aria-label="Send Beautiful Blessings" class="blessing-button">
+            <i class="fas fa-spa text-sm"></i>
+        </button>
+        <audio id="ambient-audio" loop preload="auto" playsinline>
             <source src="music/wedding-nasheed.mp3" type="audio/mpeg">
         </audio>
 
@@ -603,107 +700,93 @@
         setInterval(updateCountdown, 1000);
         updateCountdown();
 
-        // Wedding nasheed playback.
-        // Try sound-on autoplay first. If blocked, use muted autoplay where possible,
-        // then enable sound on the visitor's first tap (a browser-required gesture).
+        // Wedding nasheed: start only when the visitor opens the invitation.
         const ambientAudio = document.getElementById('ambient-audio');
         const audioIcon = document.getElementById('audio-icon');
         const audioButton = document.getElementById('audio-toggle');
-        let visitorChoseMute = false;
-        let soundEnabledByVisitor = false;
 
         function updateAudioButton() {
             if (!ambientAudio.paused && !ambientAudio.muted) {
                 audioIcon.className = "fas fa-volume-up text-xs sm:text-sm text-gold-100";
                 audioButton.title = "Mute wedding nasheed";
                 audioButton.setAttribute('aria-label', 'Mute wedding nasheed');
-            } else if (!ambientAudio.paused && ambientAudio.muted) {
-                audioIcon.className = "fas fa-volume-mute text-xs sm:text-sm text-gold-100";
+            } else {
+                audioIcon.className = "fas fa-volume-mute text-xs sm:text-sm";
                 audioButton.title = "Unmute wedding nasheed";
                 audioButton.setAttribute('aria-label', 'Unmute wedding nasheed');
-            } else {
-                audioIcon.className = "fas fa-music text-xs sm:text-sm";
-                audioButton.title = "Play wedding nasheed";
-                audioButton.setAttribute('aria-label', 'Play wedding nasheed');
             }
         }
 
-        async function startAmbientAudio() {
-            try {
-                ambientAudio.muted = false;
-                await ambientAudio.play();
-                updateAudioButton();
-                return;
-            } catch (error) {
-                // Audible autoplay is blocked by many mobile browsers.
-            }
-            try {
-                ambientAudio.muted = true;
-                await ambientAudio.play();
-            } catch (mutedError) {
-                ambientAudio.muted = false;
-            }
-            updateAudioButton();
-        }
+        async function openWeddingInvitation() {
+            const welcomeScreen = document.getElementById('welcome-screen');
 
-        async function enableSoundAfterVisitorGesture() {
-            if (visitorChoseMute || soundEnabledByVisitor) return;
-            soundEnabledByVisitor = true;
+            // This click is a user gesture, allowing supported mobile browsers to start audio.
+            ambientAudio.muted = false;
             try {
-                ambientAudio.muted = false;
                 await ambientAudio.play();
             } catch (error) {
-                soundEnabledByVisitor = false;
+                // The invitation still opens if the browser or device blocks audio.
+                console.warn("Nasheed playback was blocked or the audio file could not load.", error);
             }
+
             updateAudioButton();
+            welcomeScreen.classList.add('hide');
+            setTimeout(() => { welcomeScreen.style.display = 'none'; }, 950);
         }
 
-        function toggleAudio() {
+        async function toggleAudio() {
             if (ambientAudio.paused) {
-                visitorChoseMute = false;
-                soundEnabledByVisitor = true;
                 ambientAudio.muted = false;
-                ambientAudio.play().then(() => {
-                    updateAudioButton();
-                    showToast("Playing Islamic Wedding Nasheed");
-                }).catch(() => {
-                    updateAudioButton();
-                    showToast("Please check your phone's media volume and tap again");
-                });
-                return;
+                try {
+                    await ambientAudio.play();
+                } catch (error) {
+                    console.warn("Nasheed could not be played. Check the audio file path.", error);
+                }
+            } else {
+                ambientAudio.muted = !ambientAudio.muted;
             }
-            ambientAudio.muted = !ambientAudio.muted;
-            visitorChoseMute = ambientAudio.muted;
-            soundEnabledByVisitor = !ambientAudio.muted;
             updateAudioButton();
-            showToast(ambientAudio.muted ? "Nasheed muted" : "Nasheed unmuted");
         }
-
-        // Any first tap on the page can unlock audio on mobile. The music button
-        // remains dedicated to play/mute so its click is not intercepted here.
-        document.addEventListener('pointerdown', (event) => {
-            if (event.target?.closest?.('#audio-toggle')) return;
-            enableSoundAfterVisitorGesture();
-        }, { once: true, passive: true });
-        document.addEventListener('touchend', (event) => {
-            if (event.target?.closest?.('#audio-toggle')) return;
-            enableSoundAfterVisitorGesture();
-        }, { once: true, passive: true });
 
         ambientAudio.addEventListener('play', updateAudioButton);
+        ambientAudio.addEventListener('pause', updateAudioButton);
         ambientAudio.addEventListener('volumechange', updateAudioButton);
         ambientAudio.addEventListener('error', () => {
-            showToast("Music could not load. Please check that the music folder is uploaded with the website.");
+            console.warn("Music could not load. Check that music/wedding-nasheed.mp3 is uploaded.");
         });
+        updateAudioButton();
 
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            startAmbientAudio();
-        } else {
-            window.addEventListener('DOMContentLoaded', startAmbientAudio, { once: true });
+        // Blessings button: a gentle shower of flowers and petals.
+        let flowerRainActive = false;
+        function startFlowerRain() {
+            const flowerContainer = document.getElementById('flower-rain');
+            if (flowerRainActive) return;
+
+            flowerRainActive = true;
+            const flowers = ['🌸', '🌺', '🌼', '🌷', '💮', '🌹', '✨'];
+            let flowerCount = 0;
+            const totalFlowers = 100;
+
+            const flowerInterval = setInterval(() => {
+                if (flowerCount >= totalFlowers) {
+                    clearInterval(flowerInterval);
+                    setTimeout(() => { flowerRainActive = false; }, 6000);
+                    return;
+                }
+
+                const petal = document.createElement('span');
+                petal.className = 'flower-petal';
+                petal.textContent = flowers[Math.floor(Math.random() * flowers.length)];
+                petal.style.left = (Math.random() * 100) + 'vw';
+                petal.style.fontSize = (Math.random() * 18 + 15) + 'px';
+
+                const duration = Math.random() * 3 + 4;
+                petal.style.animationDuration = duration + 's';
+                flowerContainer.appendChild(petal);
+                setTimeout(() => petal.remove(), duration * 1000);
+                flowerCount++;
+            }, 75);
         }
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden && ambientAudio.paused) startAmbientAudio();
-        });
 
         // Add Event to Google Calendar Action
         function addToCalendar(title, startDate, location) {
