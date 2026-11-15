@@ -134,12 +134,18 @@
         }
         #welcome-screen.hide { opacity: 0; visibility: hidden; pointer-events: none; }
         .welcome-card {
-            width: 100%; max-width: 540px; padding: 45px 25px; text-align: center;
-            border: 2px solid rgba(223,183,108,.8); border-radius: 30px;
-            background: linear-gradient(160deg, rgba(11,77,54,.97), rgba(3,23,16,.99));
-            box-shadow: 0 0 60px rgba(223,183,108,.2);
-            position: relative; overflow: hidden;
-        }
+    width: 100%;
+    max-width: 420px;
+    max-height: calc(100vh - 36px);
+    padding: 28px 22px;
+    text-align: center;
+    border: 1.5px solid rgba(223,183,108,.8);
+    border-radius: 24px;
+    background: linear-gradient(160deg, rgba(11,77,54,.97), rgba(3,23,16,.99));
+    box-shadow: 0 0 42px rgba(223,183,108,.18);
+    position: relative;
+    overflow-y: auto;
+}
         .welcome-card::before, .welcome-card::after {
             content: "✦"; position: absolute; color: #dfb76c; font-size: 65px; opacity: .35;
         }
