@@ -753,24 +753,16 @@ function updateAudioButton() {
     }
 }
 
+
 function openWeddingInvitation() {
     const welcomeScreen = document.getElementById('welcome-screen');
 
-    // Set 40% volume before starting playback.
-    ambientAudio.volume = 0.4;
+    // Keep music stopped when opening the invitation.
+    ambientAudio.pause();
+    ambientAudio.currentTime = 0;
     ambientAudio.muted = false;
 
-    // Start playback directly from the Open button click.
-    const playPromise = ambientAudio.play();
-
-    if (playPromise !== undefined) {
-        playPromise
-            .then(() => updateAudioButton())
-            .catch(error => {
-                console.warn("Nasheed playback could not start:", error);
-                updateAudioButton();
-            });
-    }
+    updateAudioButton();
 
     welcomeScreen.classList.add('hide');
     setTimeout(() => {
@@ -778,36 +770,22 @@ function openWeddingInvitation() {
     }, 950);
 }
 
-function toggleAudio() {
+async function toggleAudio() {
     if (ambientAudio.paused) {
-        ambientAudio.volume = 0.4;
         ambientAudio.muted = false;
 
-        const playPromise = ambientAudio.play();
-
-        if (playPromise !== undefined) {
-            playPromise
-                .then(() => updateAudioButton())
-                .catch(error => {
-                    console.warn("Nasheed could not be played:", error);
-                    updateAudioButton();
-                });
+        try {
+            await ambientAudio.play();
+        } catch (error) {
+            console.warn("Nasheed could not be played:", error);
         }
     } else {
-        ambientAudio.muted = !ambientAudio.muted;
-        updateAudioButton();
+        ambientAudio.pause();
+        ambientAudio.currentTime = 0;
     }
+
+    updateAudioButton();
 }
-
-ambientAudio.addEventListener('play', updateAudioButton);
-ambientAudio.addEventListener('pause', updateAudioButton);
-ambientAudio.addEventListener('volumechange', updateAudioButton);
-
-ambientAudio.addEventListener('error', () => {
-    console.warn("Music could not load. Check music/wedding-nasheed.mp3");
-});
-
-updateAudioButton();
 
         // Blessings button: a gentle shower of flowers and petals.
         let flowerRainActive = false;
