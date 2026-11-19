@@ -751,22 +751,24 @@
         }
 
         async function openWeddingInvitation() {
-            const welcomeScreen = document.getElementById('welcome-screen');
+    const welcomeScreen = document.getElementById('welcome-screen');
 
-            // This click is a user gesture, allowing supported mobile browsers to start audio.
-            ambientAudio.volume = 0.4; // Set music volume to 40%
-            ambientAudio.muted = false;
-            try {
-                await ambientAudio.play();
-            } catch (error) {
-                // The invitation still opens if the browser or device blocks audio.
-                console.warn("Nasheed playback was blocked or the audio file could not load.", error);
-            }
+    // Set music volume to 40%
+    ambientAudio.volume = 0.4;
+    ambientAudio.muted = false;
 
-            updateAudioButton();
-            welcomeScreen.classList.add('hide');
-            setTimeout(() => { welcomeScreen.style.display = 'none'; }, 950);
-        }
+    try {
+        await ambientAudio.play();
+    } catch (error) {
+        console.warn("Nasheed playback error:", error);
+    }
+
+    updateAudioButton();
+    welcomeScreen.classList.add('hide');
+    setTimeout(() => {
+        welcomeScreen.style.display = 'none';
+    }, 950);
+}
 
         async function toggleAudio() {
             if (ambientAudio.paused) {
