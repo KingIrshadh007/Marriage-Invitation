@@ -753,6 +753,7 @@
             const welcomeScreen = document.getElementById('welcome-screen');
 
             // This click is a user gesture, allowing supported mobile browsers to start audio.
+            ambientAudio.volume = 0.4; // Set music volume to 40%
             ambientAudio.muted = false;
             try {
                 await ambientAudio.play();
