@@ -753,18 +753,22 @@
         async function openWeddingInvitation() {
     const welcomeScreen = document.getElementById('welcome-screen');
 
-    // Set music volume to 40%
-    ambientAudio.volume = 0.4;
-    ambientAudio.muted = false;
-
     try {
+        ambientAudio.pause();
+        ambientAudio.currentTime = 0;
+        ambientAudio.volume = 0.4;
+        ambientAudio.muted = false;
+
         await ambientAudio.play();
+
     } catch (error) {
-        console.warn("Nasheed playback error:", error);
+        console.error("Audio playback error:", error);
     }
 
     updateAudioButton();
+
     welcomeScreen.classList.add('hide');
+
     setTimeout(() => {
         welcomeScreen.style.display = 'none';
     }, 950);
